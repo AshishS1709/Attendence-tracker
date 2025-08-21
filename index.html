@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Tracker - Under 25 App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 667px;
+            background: #f8fafc;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8fafc;
+        }
+
+        .user-info h1 {
+            font-size: 24px;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .username {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .main-content {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .attendance-circle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .circle-progress {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(#3b82f6 0deg 280.8deg, #e5e7eb 280.8deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .circle-inner {
+            width: 160px;
+            height: 160px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .percentage {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .overall-text {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .message-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .message-card.warning {
+            border-left-color: #eab308;
+        }
+
+        .message-card.danger {
+            border-left-color: #ef4444;
+        }
+
+        .message-card.success {
+            border-left-color: #22c55e;
+        }
+
+        .message-text {
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            color: #1f2937;
+        }
+
+        .stats-section {
+            margin-top: 30px;
+        }
+
+        .stats-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+
+        .subject-preview {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .subject-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .subject-percentage {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .subject-percentage.good { color: #22c55e; }
+        .subject-percentage.warning { color: #eab308; }
+        .subject-percentage.danger { color: #ef4444; }
+
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f8fafc;
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active {
+            background: #8b5cf6;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .view {
+            display: none;
+            min-height: 500px;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .subjects-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .subject-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .subject-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .subject-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .subject-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .big-percentage {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .stats-details {
+            text-align: right;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .reminders-list {
+            margin-top: 20px;
+        }
+
+        .reminder-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 15px;
+        }
+
+        .reminder-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .reminder-content h4 {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .reminder-content p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 400px) {
+            .phone-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="app-container">
+            <!-- Home View -->
+            <div id="home-view" class="view active">
+                <div class="header">
+                    <div class="user-info">
+                        <h1>Hey there! 👋</h1>
+                        <div class="username">@<span id="username">YourUsername</span></div>
+                    </div>
+                    <div class="logo">U25</div>
+                </div>
+
+                <div class="main-content">
+                    <div class="attendance-circle">
+                        <div class="circle-progress" id="circleProgress">
+                            <div class="circle-inner">
+                                <div class="percentage" id="overallPercentage">78%</div>
+                                <div class="overall-text">Overall</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-card" id="messageCard">
+                        <div class="message-text" id="messageText">
+                            ✨ Great job! You're on track for success!
+                        </div>
+                    </div>
+
+                    <div class="stats-section">
+                        <div class="stats-title">Quick Stats</div>
+                        <div id="subjectPreviews"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subjects View -->
+            <div id="subjects-view" class="view">
+                <div class="header">
+                    <div class="user-info">
+                        <h1>Subject Breakdown</h1>
+                    </div>
+                    <div class="logo">U25</div>
+                </div>
+
+                <div class="main-content">
+                    <div class="subjects-grid" id="subjectsGrid"></div>
+                </div>
+            </div>
+
+            <!-- Reminders View -->
+            <div id="reminders-view" class="view">
+                <div class="header">
+                    <div class="user-info">
+                        <h1>Smart Reminders</h1>
+                    </div>
+                    <div class="logo">U25</div>
+                </div>
+
+                <div class="main-content">
+                    <div class="reminders-list" id="remindersList"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="navigation">
+                <button class="nav-btn active" onclick="switchView('home')">🏠 Home</button>
+                <button class="nav-btn" onclick="switchView('subjects')">📊 Subjects</button>
+                <button class="nav-btn" onclick="switchView('reminders')">🔔 Alerts</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App data
+        const appData = {
+            username: "e/ashish2217", // Change this to your actual Under 25 username
+            overallAttendance: 78,
+            subjects: [
+                { name: "Mathematics", attendance: 85, total: 40, present: 34, color: "#22c55e" },
+                { name: "Physics", attendance: 72, total: 35, present: 25, color: "#eab308" },
+                { name: "Chemistry", attendance: 65, total: 38, present: 25, color: "#f97316" },
+                { name: "Computer Science", attendance: 90, total: 32, present: 29, color: "#3b82f6" },
+                { name: "English", attendance: 68, total: 30, present: 20, color: "#ef4444" }
+            ]
+        };
+
+        // Initialize app
+        function initApp() {
+            document.getElementById('username').textContent = appData.username;
+            updateCircleProgress();
+            updateMessage();
+            renderSubjectPreviews();
+            renderSubjectsGrid();
+            renderReminders();
+        }
+
+        // Update circular progress
+        function updateCircleProgress() {
+            const circle = document.getElementById('circleProgress');
+            const percentage = appData.overallAttendance;
+            const degrees = (percentage / 100) * 360;
+            
+            circle.style.background = `conic-gradient(${getColorByPercentage(percentage)} 0deg ${degrees}deg, #e5e7eb ${degrees}deg 360deg)`;
+            document.getElementById('overallPercentage').textContent = `${percentage}%`;
+        }
+
+        // Update motivational message
+        function updateMessage() {
+            const messageCard = document.getElementById('messageCard');
+            const messageText = document.getElementById('messageText');
+            const percentage = appData.overallAttendance;
+            
+            let message, className;
+            
+            if (percentage >= 85) {
+                message = "🎉 You're crushing it! Keep up the amazing work!";
+                className = "success";
+            } else if (percentage >= 75) {
+                message = "✨ Great job! You're on track for success!";
+                className = "";
+            } else if (percentage >= 65) {
+                message = "⚠️ Getting close to danger zone. Time to step up!";
+                className = "warning";
+            } else {
+                message = "🚨 Red alert! Your attendance needs immediate attention!";
+                className = "danger";
+            }
+            
+            messageText.textContent = message;
+            messageCard.className = `message-card ${className}`;
+        }
+
+        // Render subject previews
+        function renderSubjectPreviews() {
+            const container = document.getElementById('subjectPreviews');
+            container.innerHTML = '';
+            
+            appData.subjects.slice(0, 3).forEach(subject => {
+                const preview = document.createElement('div');
+                preview.className = 'subject-preview';
+                preview.innerHTML = `
+                    <div class="subject-name">${subject.name}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${subject.attendance}%; background: ${subject.color};"></div>
+                    </div>
+                    <div class="subject-percentage ${getPercentageClass(subject.attendance)}">${subject.attendance}%</div>
+                `;
+                container.appendChild(preview);
+            });
+        }
+
+        // Render subjects grid
+        function renderSubjectsGrid() {
+            const container = document.getElementById('subjectsGrid');
+            container.innerHTML = '';
+            
+            appData.subjects.forEach(subject => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                card.innerHTML = `
+                    <div class="subject-header">
+                        <div class="subject-title">${subject.name}</div>
+                        <div class="subject-status" style="background: ${subject.color}20; color: ${subject.color};">
+                            ${getSubjectMessage(subject.attendance)}
+                        </div>
+                    </div>
+                    <div class="subject-stats">
+                        <div class="big-percentage ${getPercentageClass(subject.attendance)}" style="color: ${subject.color};">
+                            ${subject.attendance}%
+                        </div>
+                        <div class="stats-details">
+                            Present: ${subject.present}<br>
+                            Total: ${subject.total}
+                        </div>
+                    </div>
+                    <div class="progress-bar" style="margin-top: 15px;">
+                        <div class="progress-fill" style="width: ${subject.attendance}%; background: ${subject.color};"></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Render reminders
+        function renderReminders() {
+            const container = document.getElementById('remindersList');
+            container.innerHTML = '';
+            
+            const reminders = generateReminders();
+            
+            reminders.forEach(reminder => {
+                const item = document.createElement('div');
+                item.className = 'reminder-item';
+                item.innerHTML = `
+                    <div class="reminder-icon">${reminder.icon}</div>
+                    <div class="reminder-content">
+                        <h4>${reminder.title}</h4>
+                        <p>${reminder.description}</p>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Generate smart reminders
+        function generateReminders() {
+            const reminders = [];
+            
+            // Check for low attendance subjects
+            const lowAttendance = appData.subjects.filter(s => s.attendance < 75);
+            lowAttendance.forEach(subject => {
+                reminders.push({
+                    icon: "⚠️",
+                    title: `${subject.name} Alert`,
+                    description: `Your attendance is ${subject.attendance}%. Attend next 3 classes to improve!`
+                });
+            });
+            
+            // Overall performance message
+            if (appData.overallAttendance >= 85) {
+                reminders.push({
+                    icon: "🎯",
+                    title: "Maintain Excellence",
+                    description: "You're doing great! Keep maintaining this awesome attendance rate."
+                });
+            } else if (appData.overallAttendance >= 75) {
+                reminders.push({
+                    icon: "📈",
+                    title: "Push for Excellence",
+                    description: "You're doing well! Try to get above 85% for academic excellence."
+                });
+            } else {
+                reminders.push({
+                    icon: "🚀",
+                    title: "Recovery Mode",
+                    description: "Time to focus! Plan your attendance strategy to get back on track."
+                });
+            }
+            
+            // Weekly tip
+            reminders.push({
+                icon: "💡",
+                title: "Weekly Tip",
+                description: "Set daily reminders 30 minutes before each class to never miss attendance!"
+            });
+            
+            return reminders;
+        }
+
+        // Helper functions
+        function getColorByPercentage(percentage) {
+            if (percentage >= 85) return "#22c55e";
+            if (percentage >= 75) return "#3b82f6";
+            if (percentage >= 65) return "#eab308";
+            return "#ef4444";
+        }
+
+        function getPercentageClass(percentage) {
+            if (percentage >= 75) return "good";
+            if (percentage >= 65) return "warning";
+            return "danger";
+        }
+
+        function getSubjectMessage(percentage) {
+            if (percentage >= 85) return "Excellent! 🌟";
+            if (percentage >= 75) return "Good job! 👍";
+            if (percentage >= 65) return "Need improvement ⚠️";
+            return "Critical! 🚨";
+        }
+
+        // View switching
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected view
+            document.getElementById(`${viewName}-view`).classList.add('active');
+            
+            // Set active nav button
+            event.target.classList.add('active');
+        }
+
+        // Initialize app on load
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
